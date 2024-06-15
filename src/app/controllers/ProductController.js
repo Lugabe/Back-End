@@ -25,15 +25,16 @@ class ProductsController {
       path,
     });
 
-
     return response.status(201).json(product);
   }
 
   async index(request, response) {
-    const products = await Products.findAll()
-    return response.json(products)
-  }
+    const products = await Products.findAll();
+    
+    console.log({ userId: request.userId });
 
+    return response.json(products);
+  }
 }
 
 export default new ProductsController();

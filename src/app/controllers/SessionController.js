@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 import User from '../models/User';
-import jwt from 'jsonwebtoken'
-import authConfig from '../../config/auth'
+import jwt from 'jsonwebtoken';
+import authConfig from '../../config/auth';
 
 class SessionController {
   async store(request, response) {
@@ -19,7 +19,7 @@ class SessionController {
     };
 
     if (!isValid) {
-      return emailOrPasswordIncorrect()
+      return emailOrPasswordIncorrect();
     }
 
     const { email, password } = request.body;
@@ -45,12 +45,11 @@ class SessionController {
       name: user.name,
       email: email,
       admin: user.admin,
-      token: jwt.sign({id: user.id},authConfig.secret,{
-        expiresIn: authConfig.expiresIn
-      })
+      token: jwt.sign({ id: user.id, name: user.name }, authConfig.secret, {
+        expiresIn: authConfig.expiresIn,
+      }),
     });
   }
-    
 }
 
 export default new SessionController();

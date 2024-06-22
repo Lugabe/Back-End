@@ -1,19 +1,26 @@
 import * as Yup from 'yup';
 import Products from '../models/Products';
 import Category from '../models/Category';
+import User from '../models/User';
 
 class ProductsController {
   async store(request, response) {
     const schema = Yup.object({
       name: Yup.string().required(),
       price: Yup.number().required(),
-      category_id: Yup.number().required()
+      category_id: Yup.number().required(),
     });
 
     try {
       schema.validateSync(request.body, { abortEarly: false });
     } catch (err) {
       return response.status(400).json({ error: err.errors });
+    }
+
+    const { admin: isAdmin } = await User.findByPk(request.userId);
+
+    if (!isAdmin) {
+      return response.status(401).json();
     }
 
     const { filename: path } = request.file;

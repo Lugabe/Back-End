@@ -19,10 +19,13 @@ routes.use(authMiddleware); // Todas as rotas a baixo deste Middleware precisam 
 
 routes.post('/products', upload.single('file'), ProductController.store);
 routes.post('/category', CategoryController.store);
+routes.post('/orders', OrderController.store);
+
 routes.get('/products', ProductController.index);
 routes.get('/category', CategoryController.index);
 routes.get('/orders', OrderController.index);
-routes.post('/orders', OrderController.store);
+
+routes.put('/orders/:id', OrderController.updateOrderStatus)
 
 export default routes;
 

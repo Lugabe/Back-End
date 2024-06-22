@@ -3,6 +3,11 @@ import Category from '../models/Category';
 import Product from '../models/Products';
 import Order from '../schemas/Order';
 import Database from '../../database/index';
+import { where } from 'sequelize';
+import { response } from 'express';
+import { throws } from 'assert';
+import { error } from 'console';
+import User from '../models/User';
 
 class OrderController {
   async store(request, response) {
@@ -81,6 +86,43 @@ class OrderController {
     // console.log({ userId: request.userId });
 
     return response.json(findAllOrders);
+  }
+
+  async updateOrderStatus(request, response) {
+    const schema = Yup.object({
+      status: Yup.string().required(),
+    });
+
+    try {
+      schema.validateSync(request.body, { abortEarly: false });
+    } catch (err) {
+      return response.status(400).json({ error: err.errors });
+    }
+
+    const { admin: isAdmin } = await User.findByPk(request.userId);
+
+    if (!isAdmin) {
+      return response.status(401).json();
+    }
+
+    const { id } = request.params;
+    const { status } = request.body;
+
+    if (typeof status !== 'string') {
+      return response.status(400).json('Status must be String');
+    }
+
+    try {
+      await Order.updateOne({ _id: id }, { status });
+
+      return response.status(200).json(`Status alterado para:  **${status}**`);
+    } catch (error) {
+      return response
+        .status(500)
+        .json(
+          `Error in update the order, order id not exist: ${error.message}`,
+        );
+    }
   }
 }
 

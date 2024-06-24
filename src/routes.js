@@ -25,7 +25,11 @@ routes.get('/products', ProductController.index);
 routes.get('/category', CategoryController.index);
 routes.get('/orders', OrderController.index);
 
-routes.put('/orders/:id', OrderController.updateOrderStatus)
+routes.put('/orders/:id', OrderController.updateOrderStatus);
+routes.put('/products/:id', upload.single('file'), ProductController.updateProduct);
+routes.put('/category/:id', CategoryController.updateCategory);
+
+routes.delete('/products/:id', ProductController.deleteProduct)
 
 export default routes;
 

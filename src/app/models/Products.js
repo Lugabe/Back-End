@@ -6,6 +6,7 @@ class Products extends Model {
       {
         name: Sequelize.STRING,
         price: Sequelize.DOUBLE,
+        offer: Sequelize.BOOLEAN,
         category_id: Sequelize.INTEGER, // RETIRAR SE DER PROBLEMA COM MODELS OU SEQUELIZE
         path: Sequelize.STRING,
         url: {

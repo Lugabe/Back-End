@@ -18,7 +18,7 @@ routes.post('/session', SessionController.store);
 routes.use(authMiddleware); // Todas as rotas a baixo deste Middleware precisam ser autenticas.
 
 routes.post('/products', upload.single('file'), ProductController.store);
-routes.post('/category', CategoryController.store);
+routes.post('/category', upload.single('file'), CategoryController.store);
 routes.post('/orders', OrderController.store);
 
 routes.get('/products', ProductController.index);
@@ -27,9 +27,10 @@ routes.get('/orders', OrderController.index);
 
 routes.put('/orders/:id', OrderController.updateOrderStatus);
 routes.put('/products/:id', upload.single('file'), ProductController.updateProduct);
-routes.put('/category/:id', CategoryController.updateCategory);
+routes.put('/category/:id', upload.single('file'), CategoryController.updateCategory);
 
 routes.delete('/products/:id', ProductController.deleteProduct)
+routes.delete('/category/:id', CategoryController.deleteCategory)
 
 export default routes;
 

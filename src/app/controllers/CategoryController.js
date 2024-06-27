@@ -2,6 +2,7 @@ import * as Yup from 'yup';
 import Category from '../models/Category';
 import User from '../models/User';
 import { where } from 'sequelize';
+import Products from '../models/Products';
 
 class CategoryController {
   async store(request, response) {
@@ -22,6 +23,7 @@ class CategoryController {
     }
 
     const { name } = request.body;
+    const { filename: path } = request.file;
 
     const categoryAlreadyExist = await Category.findOne({
       where: {
@@ -35,14 +37,15 @@ class CategoryController {
 
     const { id } = await Category.create({
       name,
+      path,
     });
 
-    return response.status(201).json({ id, name });
+    return response.status(201).json({ id, name, path });
   }
 
   async updateCategory(request, response) {
     const schema = Yup.object({
-      name: Yup.string().required(),
+      name: Yup.string(),
     });
 
     try {
@@ -57,8 +60,42 @@ class CategoryController {
       return response.status(401).json();
     }
 
-    const { id } = request.params;
     const { name } = request.body;
+    const { id } = request.params;
+
+    let path;
+    if (request.file) {
+      path = request.file.filename;
+    }
+
+    if (!name && !path) {
+      return response.status(200).json('No updates made');
+    }
+
+    try {
+      const categoryIdExist = await Category.findByPk(id);
+      if (!categoryIdExist) {
+        return response.status(400).json("Category ID don't exist");
+      }
+    } catch (error) {
+      return response.status(400).json(error);
+    }
+
+    try {
+      if (path && !name) {
+        await Category.update(
+          {
+            path,
+          },
+          {
+            where: { id },
+          },
+        );
+        return response.status(200).json('Image Updated');
+      }
+    } catch (error) {
+      return response.status(200).json({ error });
+    }
 
     try {
       const categoryAlreadyExist = await Category.findOne({
@@ -67,7 +104,7 @@ class CategoryController {
         },
       });
 
-      if (categoryAlreadyExist) {
+      if (categoryAlreadyExist && categoryAlreadyExist.id != id) {
         return response.status(400).json({ error: 'Category already exist' });
       }
     } catch (error) {
@@ -78,6 +115,7 @@ class CategoryController {
       await Category.update(
         {
           name,
+          path,
         },
         {
           where: {
@@ -86,9 +124,37 @@ class CategoryController {
         },
       );
 
-      return response.status(200).json({ id, name });
+      return response.status(200).json({ id, name, path });
     } catch (error) {
       return response.status(400).json({ error });
+    }
+  }
+
+  async deleteCategory(request, response) {
+    const { admin: isAdmin } = await User.findByPk(request.userId);
+
+    if (!isAdmin) {
+      return response.status(401).json();
+    }
+
+    const { id } = request.params;
+
+    const categoryIdExist = await Category.findByPk(id);
+    if (!categoryIdExist) {
+      return response.status(400).json("Category ID don't exist");
+    }
+
+    const categoryName = categoryIdExist.name;
+
+    try {
+      await Category.destroy({
+        where: {
+          id,
+        },
+      });
+      return response.status(200).json(`${categoryName} Was Deleted`);
+    } catch (error) {
+      return response.status(400).json(error);
     }
   }
 

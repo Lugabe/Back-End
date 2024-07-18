@@ -24,6 +24,7 @@ routes.post('/orders', OrderController.store);
 routes.get('/products', ProductController.index);
 routes.get('/category', CategoryController.index);
 routes.get('/orders', OrderController.index);
+routes.get('/users', UserController.index);
 
 routes.put('/orders/:id', OrderController.updateOrderStatus);
 routes.put('/products/:id', upload.single('file'), ProductController.updateProduct);

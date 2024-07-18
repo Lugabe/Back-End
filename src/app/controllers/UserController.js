@@ -26,7 +26,7 @@ class UserController {
     });
 
     if (userExists) {
-      return response.status(400).json({ error: 'User already exist.' });
+      return response.status(409).json({ error: 'User already exist.' });
     }
 
     const user = await User.create({
@@ -42,6 +42,14 @@ class UserController {
       email,
       admin,
     });
+  }
+
+  async index(request, response) {
+    const findAllUsers = await User.findAll();
+
+    // console.log({ userId: request.userId });
+
+    return response.json(findAllUsers);
   }
 }
 
